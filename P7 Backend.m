@@ -91,17 +91,7 @@ static NSTimer *g_ringTimer = nil;
 #pragma mark - P7 Constants
 // =============================================================================
 
-// Tab indices (expanded)
-typedef NS_ENUM(NSInteger, P7Tab) {
-    P7TabItems = 0, P7TabMonsters = 1, P7TabShapes = 2,
-    P7TabExperiments = 3, P7TabLocations = 4, P7TabAdmin = 5, P7TabSettings = 6,
-};
-
-typedef NS_ENUM(NSInteger, P7Category) {
-    P7CategoryAll = 0, P7CategoryWeapons = 1, P7CategoryRare = 2,
-    P7CategoryExplosives = 3, P7CategoryFood = 4, P7CategoryFish = 5,
-    P7CategoryBackpacks = 6, P7CategoryQuest = 7,
-};
+// (P7Tab and P7Category are defined in Frontend only to avoid duplicate symbol errors when linking.)
 
 // Extended preset locations
 typedef struct { float x, y, z; const char *name; } P7PresetPos;
