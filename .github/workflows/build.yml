@@ -26,9 +26,19 @@ jobs:
             -framework UIKit -framework QuartzCore -framework Speech \
             -framework AVFoundation -framework Foundation -framework UniformTypeIdentifiers \
             -install_name /Library/MobileSubstrate/DynamicLibraries/P7.dylib \
-            P7_Backend.m P7_Frontend.m -o P7.dylib
-          file P7.dylib
-          ls -la P7.dylib
+            P7_Backend.m P7_Frontend.m -o P7.dylib 2>&1 | tee build.log
+          R=$?
+          file P7.dylib 2>/dev/null || true
+          ls -la P7.dylib 2>/dev/null || true
+          exit $R
+
+      - name: Show build log if build failed
+        if: failure()
+        run: |
+          echo "=== Build log (last 80 lines) ==="
+          cat build.log 2>/dev/null || echo "(no build.log)"
+          echo "=== ls -la ==="
+          ls -la
 
       - name: Create .deb packages (Python - no dpkg needed)
         run: |
