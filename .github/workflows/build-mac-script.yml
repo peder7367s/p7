@@ -1,0 +1,56 @@
+# Alternative build: runs build_mac.sh on the runner (with Theos + dpkg).
+# In Actions, choose "Build dylib" to run this.
+
+name: Build dylib
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Show Xcode + SDKs
+        run: |
+          xcode-select -p
+          xcodebuild -version
+          xcrun --sdk iphoneos --show-sdk-path
+          xcrun --sdk iphonesimulator --show-sdk-path
+
+      - name: Install Theos (basic)
+        run: |
+          git clone --recursive https://github.com/theos/theos.git $HOME/theos
+          echo "THEOS=$HOME/theos" >> $GITHUB_ENV
+          brew update
+          brew install ldid make perl wget dpkg
+
+      - name: Make script executable
+        run: |
+          chmod +x ./build_mac.sh
+          ls -la
+
+      - name: Run build
+        run: |
+          bash -x ./build_mac.sh
+
+      - name: Find outputs
+        run: |
+          echo "=== Dylibs ==="
+          find . -name "*.dylib" -maxdepth 6 || true
+          echo "=== Debs ==="
+          find . -name "*.deb" -maxdepth 6 || true
+          echo "=== Frameworks ==="
+          find . -name "*.framework" -maxdepth 6 || true
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-output
+          path: |
+            **/*.dylib
+            **/*.deb
+            **/*.framework
