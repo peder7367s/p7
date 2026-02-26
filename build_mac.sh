@@ -4,24 +4,13 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$SCRIPT_DIR"
 
-SDK="$(xcrun -sdk iphoneos -show-sdk-path)"
-CLANG="$(xcrun -sdk iphoneos -find clang)"
-ARCH=arm64
+# Use copies with no spaces in names to avoid "too many arguments"
+cp -f "P7 Backend.m" P7_Backend.m 2>/dev/null || true
+cp -f "P7 Frontend.m" P7_Frontend.m 2>/dev/null || true
 
-echo "[P7] Building P7.dylib for $ARCH..."
-"$CLANG" -arch "$ARCH" \
-  -isysroot "$SDK" \
-  -dynamiclib \
-  -fobjc-arc \
-  -framework UIKit \
-  -framework QuartzCore \
-  -framework Speech \
-  -framework AVFoundation \
-  -framework Foundation \
-  -framework UniformTypeIdentifiers \
-  -install_name /Library/MobileSubstrate/DynamicLibraries/P7.dylib \
-  "P7 Backend.m" "P7 Frontend.m" \
-  -o P7.dylib
+# iOS 14+ required for UniformTypeIdentifiers/UTType; link all frameworks the .m files use
+echo "[P7] Building P7.dylib for arm64 (iOS 14+)..."
+xcrun -sdk iphoneos clang -arch arm64 -isysroot "$(xcrun -sdk iphoneos -show-sdk-path)" -dynamiclib -fobjc-arc -mios-version-min=14.0 -w -framework UIKit -framework QuartzCore -framework AVFoundation -framework Foundation -framework UniformTypeIdentifiers -install_name /Library/MobileSubstrate/DynamicLibraries/P7.dylib P7_Backend.m P7_Frontend.m -o P7.dylib
 
 echo "[P7] Creating deb package..."
 PKG_DIR="P7_1.0_iphoneos-arm"
