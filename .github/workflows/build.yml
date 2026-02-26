@@ -17,33 +17,21 @@ jobs:
 
       - name: Build P7.dylib
         run: |
-          set -e
           SDK=$(xcrun -sdk iphoneos -show-sdk-path)
+          echo "Using SDK: $SDK"
           xcrun -sdk iphoneos clang -arch arm64 -isysroot "$SDK" -dynamiclib -fobjc-arc \
+            -mios-version-min=12.0 \
             -framework UIKit -framework QuartzCore -framework Speech \
             -framework AVFoundation -framework Foundation -framework UniformTypeIdentifiers \
             -install_name /Library/MobileSubstrate/DynamicLibraries/P7.dylib \
-            "P7 Backend.m" "P7 Frontend.m" -o P7.dylib
+            "P7 Backend.m" "P7 Frontend.m" -o P7.dylib 2>&1
           file P7.dylib
           ls -la P7.dylib
 
-      - name: Create classic .deb
+      - name: Create .deb packages (Python - no dpkg needed)
         run: |
-          mkdir -p p7_deb/DEBIAN
-          mkdir -p p7_deb/Library/MobileSubstrate/DynamicLibraries
-          cp deb/DEBIAN/control p7_deb/DEBIAN/
-          cp deb/Library/MobileSubstrate/DynamicLibraries/P7.plist p7_deb/Library/MobileSubstrate/DynamicLibraries/
-          cp P7.dylib p7_deb/Library/MobileSubstrate/DynamicLibraries/
-          dpkg-deb -b p7_deb P7_1.0_iphoneos-arm.deb
-
-      - name: Create rootless .deb
-        run: |
-          mkdir -p p7_rootless/DEBIAN
-          mkdir -p p7_rootless/var/jb/Library/MobileSubstrate/DynamicLibraries
-          cp deb/DEBIAN/control p7_rootless/DEBIAN/
-          cp deb/Library/MobileSubstrate/DynamicLibraries/P7.plist p7_rootless/var/jb/Library/MobileSubstrate/DynamicLibraries/
-          cp P7.dylib p7_rootless/var/jb/Library/MobileSubstrate/DynamicLibraries/
-          dpkg-deb -b p7_rootless P7_1.0_iphoneos-arm_rootless.deb
+          python3 make_deb_on_pc.py
+          ls -la *.deb
 
       - name: Upload .deb artifacts
         uses: actions/upload-artifact@v4
