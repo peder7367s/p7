@@ -22,7 +22,7 @@ jobs:
           SDK=$(xcrun -sdk iphoneos -show-sdk-path)
           echo "Using SDK: $SDK"
           xcrun -sdk iphoneos clang -arch arm64 -isysroot "$SDK" -dynamiclib -fobjc-arc \
-            -mios-version-min=12.0 -w \
+            -mios-version-min=14.0 -w \
             -framework UIKit -framework QuartzCore -framework Speech \
             -framework AVFoundation -framework Foundation -framework UniformTypeIdentifiers \
             -install_name /Library/MobileSubstrate/DynamicLibraries/P7.dylib \
