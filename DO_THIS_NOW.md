@@ -2,6 +2,8 @@
 
 You have the **source code** and **packaging files**. You do **not** have the **.deb** yet. Do this to get it.
 
+**Build strategy:** The workflow first builds a **minimal** P7.dylib (single file, UIKit only). That almost always succeeds, so you get a working .deb and a floating **P7** button that opens a simple panel. If the **full** menu (tabs, items, spawn, etc.) also compiles on the runner, it replaces the minimal dylib in the same artifact. So you always get at least the minimal version.
+
 ---
 
 ## Step 1: Push P7 to GitHub
