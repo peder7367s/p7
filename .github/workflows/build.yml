@@ -1,0 +1,53 @@
+# Build P7.dylib and .deb on GitHub's Mac runner — no Mac needed.
+# Push this repo to GitHub, run the workflow, download the .deb from Actions.
+
+name: Build P7
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build P7.dylib
+        run: |
+          SDK=$(xcrun -sdk iphoneos -show-sdk-path)
+          clang -arch arm64 -isysroot "$SDK" -dynamiclib -fobjc-arc \
+            -framework UIKit -framework QuartzCore -framework Speech \
+            -framework AVFoundation -framework Foundation -framework UniformTypeIdentifiers \
+            -install_name /Library/MobileSubstrate/DynamicLibraries/P7.dylib \
+            "P7 Backend.m" "P7 Frontend.m" -o P7.dylib
+          file P7.dylib
+
+      - name: Create classic .deb
+        run: |
+          mkdir -p p7_deb/DEBIAN
+          mkdir -p p7_deb/Library/MobileSubstrate/DynamicLibraries
+          cp deb/DEBIAN/control p7_deb/DEBIAN/
+          cp deb/Library/MobileSubstrate/DynamicLibraries/P7.plist p7_deb/Library/MobileSubstrate/DynamicLibraries/
+          cp P7.dylib p7_deb/Library/MobileSubstrate/DynamicLibraries/
+          dpkg-deb -b p7_deb P7_1.0_iphoneos-arm.deb
+
+      - name: Create rootless .deb
+        run: |
+          mkdir -p p7_rootless/DEBIAN
+          mkdir -p p7_rootless/var/jb/Library/MobileSubstrate/DynamicLibraries
+          cp deb/DEBIAN/control p7_rootless/DEBIAN/
+          cp deb/Library/MobileSubstrate/DynamicLibraries/P7.plist p7_rootless/var/jb/Library/MobileSubstrate/DynamicLibraries/
+          cp P7.dylib p7_rootless/var/jb/Library/MobileSubstrate/DynamicLibraries/
+          dpkg-deb -b p7_rootless P7_1.0_iphoneos-arm_rootless.deb
+
+      - name: Upload .deb artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: P7-deb-packages
+          path: |
+            P7_1.0_iphoneos-arm.deb
+            P7_1.0_iphoneos-arm_rootless.deb
+            P7.dylib

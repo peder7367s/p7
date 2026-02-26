@@ -1,0 +1,9 @@
+Package: com.p7.menu
+Name: P7 Menu
+Version: 1.0.0
+Architecture: iphoneos-arm
+Architecture: iphoneos-arm64
+Description: P7 in-game menu for Animal Company. Spawn items, monsters, shapes, and more.
+Maintainer: P7
+Depends: mobilesubstrate
+Section: Tweaks
