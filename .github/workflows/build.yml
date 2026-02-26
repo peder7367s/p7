@@ -23,7 +23,7 @@ jobs:
           echo "Using SDK: $SDK"
           xcrun -sdk iphoneos clang -arch arm64 -isysroot "$SDK" -dynamiclib -fobjc-arc \
             -mios-version-min=14.0 -w \
-            -framework UIKit -framework QuartzCore -framework Speech \
+            -framework UIKit -framework QuartzCore \
             -framework AVFoundation -framework Foundation -framework UniformTypeIdentifiers \
             -install_name /Library/MobileSubstrate/DynamicLibraries/P7.dylib \
             P7_Backend.m P7_Frontend.m -o P7.dylib 2>&1 | tee build.log
@@ -42,14 +42,21 @@ jobs:
 
       - name: Create .deb packages (Python - no dpkg needed)
         run: |
-          python3 make_deb_on_pc.py
-          ls -la *.deb
+          python3 make_deb_on_pc.py || echo "Deb step failed, dylib still available"
+          ls -la P7.dylib
 
-      - name: Upload .deb artifacts
+      - name: Upload P7.dylib (always)
+        uses: actions/upload-artifact@v4
+        with:
+          name: P7-dylib
+          path: P7.dylib
+
+      - name: Upload .deb packages (if created)
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: P7-deb-packages
           path: |
             P7_1.0_iphoneos-arm.deb
             P7_1.0_iphoneos-arm_rootless.deb
-            P7.dylib
+        continue-on-error: true
