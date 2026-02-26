@@ -17,6 +17,8 @@ jobs:
 
       - name: Build P7.dylib
         run: |
+          cp "P7 Backend.m" P7_Backend.m
+          cp "P7 Frontend.m" P7_Frontend.m
           SDK=$(xcrun -sdk iphoneos -show-sdk-path)
           echo "Using SDK: $SDK"
           xcrun -sdk iphoneos clang -arch arm64 -isysroot "$SDK" -dynamiclib -fobjc-arc \
@@ -24,7 +26,7 @@ jobs:
             -framework UIKit -framework QuartzCore -framework Speech \
             -framework AVFoundation -framework Foundation -framework UniformTypeIdentifiers \
             -install_name /Library/MobileSubstrate/DynamicLibraries/P7.dylib \
-            "P7 Backend.m" "P7 Frontend.m" -o P7.dylib
+            P7_Backend.m P7_Frontend.m -o P7.dylib
           file P7.dylib
           ls -la P7.dylib
 
