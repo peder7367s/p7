@@ -22,7 +22,7 @@ cp deb/DEBIAN/control "$PKG_DIR/DEBIAN/"
 cp deb/Library/MobileSubstrate/DynamicLibraries/P7.plist "$PKG_DIR/Library/MobileSubstrate/DynamicLibraries/"
 cp P7.dylib "$PKG_DIR/Library/MobileSubstrate/DynamicLibraries/"
 
-dpkg-deb -b "$PKG_DIR" P7_1.0_iphoneos-arm.deb 2>/dev/null || (echo "dpkg-deb not found. Install dpkg (e.g. brew install dpkg) or copy $PKG_DIR to your device and pack there."; exit 1)
+dpkg-deb -b "$PKG_DIR" P7_1.0_iphoneos-arm.deb 2>/dev/null || echo "dpkg-deb not found; .deb skipped (dylib still built)."
 
 # Rootless variant (/var/jb/ for Dopamine etc.)
 PKG_RL="P7_1.0_iphoneos-arm_rootless"
